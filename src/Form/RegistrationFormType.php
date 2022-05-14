@@ -2,7 +2,9 @@
 
 namespace App\Form;
 
+use App\Entity\Newsletter;
 use App\Entity\User;
+use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\Extension\Core\Type\PasswordType;
@@ -43,7 +45,15 @@ class RegistrationFormType extends AbstractType
                     ]),
                 ],
             ])
-        ;
+            ->add('newsletters', EntityType::class, [
+                'class' => Newsletter::class,
+                'multiple' => true,
+                'expanded' => true,
+                'mapped' => true,
+                'choice_label' => function (Newsletter $newsletter) {
+                    return $newsletter->getSubject();
+                }
+            ]);
     }
 
     public function configureOptions(OptionsResolver $resolver): void

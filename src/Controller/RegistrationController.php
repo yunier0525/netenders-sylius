@@ -2,12 +2,14 @@
 
 namespace App\Controller;
 
+use App\Entity\Newsletter;
 use App\Entity\User;
 use App\Form\RegistrationFormType;
 use App\Repository\UserRepository;
 use App\Security\EmailVerifier;
 use App\Security\NetendersAuthenticator;
 use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Bridge\Twig\Mime\TemplatedEmail;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -21,11 +23,10 @@ use SymfonyCasts\Bundle\VerifyEmail\Exception\VerifyEmailExceptionInterface;
 
 class RegistrationController extends AbstractController
 {
-    private EmailVerifier $emailVerifier;
-
-    public function __construct(EmailVerifier $emailVerifier)
-    {
-        $this->emailVerifier = $emailVerifier;
+    public function __construct(
+        private EmailVerifier $emailVerifier,
+        private ManagerRegistry $doctrine
+    ) {
     }
 
     #[Route('/register', name: 'app_register')]
@@ -47,6 +48,18 @@ class RegistrationController extends AbstractController
                     $form->get('plainPassword')->getData()
                 )
             );
+
+            $newsletters = $request->request->all()['registration_form']['newsletters'];
+
+            if (!empty($newsletters)) {
+                foreach ($newsletters as $newsletterId) {
+                    $newsletter = $this->doctrine
+                        ->getRepository(Newsletter::class)
+                        ->find($newsletterId);
+
+                    $user->addNewsletter($newsletter);
+                }
+            }
 
             $entityManager->persist($user);
             $entityManager->flush();

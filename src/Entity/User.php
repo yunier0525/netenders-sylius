@@ -3,6 +3,8 @@
 namespace App\Entity;
 
 use App\Repository\UserRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
@@ -29,6 +31,14 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     #[ORM\Column(type: 'boolean')]
     private $isVerified = false;
+
+    #[ORM\ManyToMany(targetEntity: Newsletter::class, inversedBy: 'users')]
+    private $newsletters;
+
+    public function __construct()
+    {
+        $this->newsletters = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
@@ -108,6 +118,30 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setIsVerified(bool $isVerified): self
     {
         $this->isVerified = $isVerified;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Newsletter>
+     */
+    public function getNewsletters(): Collection
+    {
+        return $this->newsletters;
+    }
+
+    public function addNewsletter(Newsletter $newsletter): self
+    {
+        if (!$this->newsletters->contains($newsletter)) {
+            $this->newsletters[] = $newsletter;
+        }
+
+        return $this;
+    }
+
+    public function removeNewsletter(Newsletter $newsletter): self
+    {
+        $this->newsletters->removeElement($newsletter);
 
         return $this;
     }
