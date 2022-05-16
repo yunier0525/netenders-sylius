@@ -1,0 +1,17 @@
+{# @var ea \EasyCorp\Bundle\EasyAdminBundle\Context\AdminContext #}
+{# @var field \EasyCorp\Bundle\EasyAdminBundle\Dto\FieldDto #}
+{# @var entity \EasyCorp\Bundle\EasyAdminBundle\Dto\EntityDto #}
+{% if ea.crud.currentAction == 'detail' %}
+  <table>
+    <tr>
+        <th>Email</th>
+    </tr>
+    {% for value in field.value %}
+      <tr>
+          <td>{{ value.email }}</td>
+      </tr>
+    {% endfor %}
+  </table>
+{% else %}
+  <span class="badge badge-secondary">{{ field.formattedValue }}</span>
+{% endif %}
